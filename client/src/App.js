@@ -8,6 +8,7 @@ function App() {
   const [foodList, setFoodList] = useState([])
   const [editFood, setEditFood] = useState(false)
   const [editDays, setEditDays] = useState(false)
+  const [counter, setCounter] = useState(0)
 
   useEffect(() => {
     axios
@@ -19,10 +20,17 @@ function App() {
   }, [])
 
   const saveFood = () => {
-    axios.post('http://localhost:3001/insert', {
-      foodName: foodName,
-      days: days,
-    })
+    axios
+      .post('http://localhost:3001/insert', {
+        foodName: foodName,
+        days: days,
+      })
+      .then((res) => setFoodList(res.data))
+      .catch((err) => {
+        console.log('error => ', err)
+      })
+    setFoodName('')
+    setDays(0)
   }
 
   const updateFood = (id) => {
@@ -31,7 +39,7 @@ function App() {
   const deleteFood = (id) => {
     axios
       .delete(`http://localhost:3001/delete/${id}`)
-      .then((res) => console.log(res.data))
+      .then((res) => setFoodList(res.data))
       .catch((err) => console.log(err))
   }
 

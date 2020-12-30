@@ -22,7 +22,13 @@ app.post('/insert', async (req, res) => {
 
   try {
     await food.save()
-    res.send('food inserted to db')
+
+    return FoodModel.find({}, (err, result) => {
+      if (err) {
+        console.log('error while inserting data to db')
+      }
+      res.send(result)
+    })
   } catch (err) {
     console.log(err)
   }
@@ -42,6 +48,12 @@ app.get('/read', async (req, res) => {
 app.delete('/delete/:id', async (req, res) => {
   const id = req.params.id
   await FoodModel.findByIdAndRemove(id).exec()
+  await FoodModel.find({}, (err, result) => {
+    if (err) {
+      console.log('error while deleting record')
+    }
+    res.send(result)
+  })
 })
 
 app.listen(3001, () => {
