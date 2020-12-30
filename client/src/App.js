@@ -1,93 +1,109 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./App.css";
 
 function App() {
-  const [foodName, setFoodName] = useState('')
-  const [days, setDays] = useState(0)
-  const [foodList, setFoodList] = useState([])
-  const [editFood, setEditFood] = useState(false)
-  const [editDays, setEditDays] = useState(false)
-  const [counter, setCounter] = useState(0)
+  const [foodName, setFoodName] = useState("");
+  const [days, setDays] = useState(0);
+  const [foodList, setFoodList] = useState([]);
+  const [editFood, setEditFood] = useState(false);
+  const [updateButton, setUpdateButton] = useState("Edit");
+  const [isTrue, setIsTrue] = useState(false);
 
   useEffect(() => {
     axios
-      .get('http://localhost:3001/read')
+      .get("http://localhost:3001/read")
       .then((res) => {
-        setFoodList(res.data)
+        setFoodList(res.data);
       })
-      .catch((err) => console.log('err=>', err))
-  }, [])
+      .catch((err) => console.log("err=>", err));
+  }, []);
 
   const saveFood = () => {
     axios
-      .post('http://localhost:3001/insert', {
+      .post("http://localhost:3001/insert", {
         foodName: foodName,
         days: days,
       })
       .then((res) => setFoodList(res.data))
-      .catch((err) => {
-        console.log('error => ', err)
+      .then(() => {
+        setFoodName("");
+        setDays(0);
       })
-    setFoodName('')
-    setDays(0)
-  }
+      .catch((err) => {
+        console.log("error => ", err);
+      });
+  };
 
-  const updateFood = (id) => {
-    console.log(id)
-  }
+  const updateFood = (updateButton, id) => {
+    if (updateButton === "Update") {
+      console.log(id, "-", foodName, "-", days);
+      axios
+        .put(`http://localhost:3001/update/${id}`, {
+          id: id,
+          foodName: foodName,
+          lastAte: days,
+        })
+        .then((result) => setFoodList(result.data))
+        .catch((err) => console.log(err));
+    }
+  };
   const deleteFood = (id) => {
     axios
       .delete(`http://localhost:3001/delete/${id}`)
       .then((res) => setFoodList(res.data))
-      .catch((err) => console.log(err))
-  }
+      .catch((err) => console.log(err));
+  };
 
   return (
-    <div className='App'>
+    <div className="App">
       <h1>MERN CRUD App</h1>
       <label>Food Name</label>
-      <input type='text' onChange={(e) => setFoodName(e.target.value)} />
+      <input type="text" onChange={(e) => setFoodName(e.target.value)} />
       <label>Did not ate since days</label>
-      <input type='number' onChange={(e) => setDays(e.target.value)} />
+      <input type="number" onChange={(e) => setDays(e.target.value)} />
       <button onClick={saveFood}>Submit</button>
       <h1>Data from server</h1>
       <ul>
         {foodList.map((food, index) => (
-          <li key={food._id} className='lis'>
-            {!editFood ? (
-              <h4
-                onClick={() => {
-                  updateFood(food._id)
-                  setEditFood(true)
-                }}
-              >
-                {food.foodName}
-              </h4>
-            ) : (
-              <div>
-                <input type='text' placeholder={food.foodName} />
-              </div>
-            )}
-            {!editDays ? (
-              <h5>Did'nt ate since {food.lastAte} days</h5>
-            ) : (
-              <div>
-                <input type='number' placeholder={food.lastAte} />
-              </div>
-            )}
+          <li key={food._id} className="lis">
+            <h4 className={isTrue ? "hide" : "show"}>{food.foodName}</h4>
+
+            <input
+              className={`${isTrue ? "show" : "hide"}`}
+              type="text"
+              placeholder={food.foodName}
+              onChange={(e) => setFoodName(e.target.value)}
+            />
+
+            <h5 className={isTrue ? "hide" : "show"}>
+              Did'nt ate since {food.lastAte} days
+            </h5>
+
+            <input
+              className={`${isTrue ? "show" : "hide"}`}
+              type="number"
+              placeholder={food.lastAte}
+              onChange={(e) => {
+                setDays(e.target.value);
+              }}
+            />
+
             <button
-              disabled={editFood ? false : true}
-              // onClick={() => setEditFood(false)}
+              onClick={(e) => {
+                setIsTrue(true);
+                setUpdateButton("Update");
+                updateFood(updateButton, food._id);
+              }}
             >
-              Update
+              {updateButton}
             </button>
             <button onClick={() => deleteFood(food._id)}>Delete</button>
           </li>
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

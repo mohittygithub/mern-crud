@@ -27,3 +27,10 @@ li {
 .hide {
   display: none;
 }
+
+.shadow-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
