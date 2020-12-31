@@ -57,12 +57,7 @@ app.put('/update/:id', async (req, res) => {
       }
       updatedFood.foodName = foodName
       updatedFood.lastAte = lastAte
-      updatedFood.save((err, result) => {
-        if (err) {
-          console.log(err)
-        }
-        res.send(result)
-      })
+      updatedFood.save()
     })
   } catch (err) {
     console.log(err)
